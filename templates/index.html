@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daliya Marketing</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Arial', sans-serif; }
+        body { background-color: #f9f9f9; color: #333; }
+        
+        /* Header & Logo Style */
+        header { background: white; padding: 15px 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; }
+        .logo-container { display: flex; align-items: center; gap: 15px; }
+        .logo-container img { height: 60px; width: auto; object-fit: contain; }
+        .brand-name { font-size: 24px; font-weight: bold; color: #1e824c; }
+        
+        /* Navigation Menu */
+        nav a { margin: 0 15px; text-decoration: none; color: #555; font-weight: bold; font-size: 16px; }
+        nav a:hover, nav a.active { color: #1e824c; }
+
+        /* Main Banner */
+        .hero { text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); }
+        .hero h1 { font-size: 28px; color: #2e7d32; margin-bottom: 10px; }
+
+        /* Product Grid Style */
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .section-title { text-align: center; margin-bottom: 30px; font-size: 24px; color: #333; }
+        
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+        .product-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; padding: 20px; transition: transform 0.3s; }
+        .product-card:hover { transform: translateY(-5px); }
+        .product-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; background: #eee; }
+        .product-card h3 { margin: 15px 0 10px; font-size: 20px; color: #222; }
+        .product-card p { color: #777; font-size: 14px; margin-bottom: 15px; }
+        
+        /* ബട്ടൺ ഒരു ലിങ്ക് ഡിസൈൻ ആക്കി മാറ്റി */
+        .order-btn { display: block; background: #28a745; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; width: 100%; text-align: center; }
+        .order-btn:hover { background: #218838; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Daliya Logo" onerror="this.src='https://via.placeholder.com/60'">
+            <span class="brand-name">Daliya Marketing</span>
+        </div>
+        <nav>
+            <a href="/" class="active">Home</a>
+            <a href="/about">About Us</a>
+            <a href="/services">Services</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>വിശ്വസ്ത ബ്രാൻഡുകളുടെ ഉൽപ്പന്നങ്ങൾ ഇപ്പോൾ നിങ്ങളുടെ വിരൽത്തുമ്പിൽ!</h1>
+        <p>Daliya Marketing വഴി മികച്ച വിതരണ സേവനം ഉറപ്പാക്കൂ.</p>
+    </section>
+
+    <div class="container">
+        <h2 class="section-title">ഞങ്ങളുടെ പ്രമുഖ ബ്രാൻഡുകൾ</h2>
+        
+        <div class="product-grid">
+    
+    {% for brand in brands %}
+    <div class="product-card">
+        
+        <img src="{{ url_for('static', filename=brand['brand_id'] ~ '.png') }}" 
+             alt="{{ brand['brand_name'] }}" 
+             onerror="this.src='https://via.placeholder.com/280x200?text=' + encodeURIComponent('{{ brand.brand_name }}')">
+        
+        <h3>{{ brand['brand_name'] }}</h3>
+        <p>{{ brand['brand_name'] }} ഉൽപ്പന്നങ്ങളും വിതരണ വിവരങ്ങളും.</p>
+        
+        <a href="/brand/{{ brand['brand_id'] }}" class="order-btn">Details</a>
+    </div>
+    {% endfor %}
+
+</div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Brands - Admin</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; max-width: 800px; margin: auto; }
+        .back-btn { display: inline-block; margin-bottom: 20px; text-decoration: none; color: white; background-color: #555; padding: 8px 12px; border-radius: 4px; font-weight: bold; }
+        .section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        h3 { color: #1e824c; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .form-inline { display: flex; gap: 10px; margin-top: 15px; }
+        input[type="text"] { padding: 8px; border: 1px solid #ccc; border-radius: 4px; flex: 1; }
+        .btn-add { background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #1e824c; color: white; }
+        .btn-edit { background: #ffc107; color: black; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 5px;}
+        .btn-delete { background: #dc3545; color: white; text-decoration: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+    <a href="/admin/dashboard" class="back-btn">← Back to Menu</a>
+
+    <div class="section">
+        <h3>➕ പുതിയ ബ്രാൻഡ് ചേർക്കുക</h3>
+        <form action="/admin/add_brand" method="POST" class="form-inline">
+            <input type="text" name="brand_id" required placeholder="Brand ID (e.g., nestle)">
+            <input type="text" name="brand_name" required placeholder="Brand Name (e.g., Nestle)">
+            <button type="submit" class="btn-add">Save</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <h3>📋 നിലവിലുള്ള ബ്രാൻഡുകൾ</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Brand ID</th>
+                    <th>Brand Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for brand in brands %}
+                <tr>
+                    <td>{{ brand.brand_id }}</td>
+                    <td>{{ brand.brand_name }}</td>
+                    <td>
+                        <form id="edit-form-{{ brand.brand_id }}" action="/admin/edit_brand/{{ brand.brand_id }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="brand_name" id="input-{{ brand.brand_id }}">
+                            <button type="button" class="btn-edit" onclick="updateBrand('{{ brand.brand_id }}', '{{ brand.brand_name }}')">Edit</button>
+                        </form>
+                        <a href="/admin/delete_brand/{{ brand.brand_id }}" class="btn-delete" onclick="return confirm('തീർച്ചയായും ഈ ബ്രാൻഡ് ഡിലീറ്റ് ചെയ്യണോ?')">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function updateBrand(id, oldName) {
+            var newName = prompt("പുതിയ ബ്രാൻഡ് പേര് ടൈപ്പ് ചെയ്യുക:", oldName);
+            if (newName && newName.trim() !== "") {
+                document.getElementById('input-' + id).value = newName;
+                document.getElementById('edit-form-' + id).submit();
+            }
+        }
+    </script>
+</body>
+</html>

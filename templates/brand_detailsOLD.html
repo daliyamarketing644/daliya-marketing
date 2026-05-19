@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ brand['brand_name'] }} - Products</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; background-color: #f9f9f9; }
+        h2 { color: #1e824c; text-align: center; margin-bottom: 20px; }
+        .back-btn { display: inline-block; margin-bottom: 20px; text-decoration: none; color: white; background-color: #1e824c; padding: 10px 15px; border-radius: 5px; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0px 4px 10px rgba(0,0,0,0.05); border-radius: 8px; overflow: hidden; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #28a745; color: white; }
+        .prod-img { width: 60px; height: 60px; object-fit: cover; border-radius: 5px; background: #eee; vertical-align: middle; margin-right: 10px; }
+    </style>
+</head>
+<body>
+
+    <a href="/" class="back-btn">← Back to Home</a>
+    <h2>{{ brand['brand_name'] }} Products</h2>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Product Image & Name</th>
+                <th>Packings</th>
+                <th>MRP (₹)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in products %}
+            <tr>
+                <td>
+                    <img src="{{ url_for('static', filename=item['img']) }}" class="prod-img" onerror="this.src='https://via.placeholder.com/60?text=Product'">
+                    <strong>{{ item['name'] }}</strong>
+                </td>
+                <td>{{ item['packing'] }}</td>
+                <td>₹ {{ item['mrp'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>

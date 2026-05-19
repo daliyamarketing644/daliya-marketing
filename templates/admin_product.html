@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Products - Admin</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; max-width: 950px; margin: auto; }
+        .back-btn { display: inline-block; margin-bottom: 20px; text-decoration: none; color: white; background-color: #555; padding: 8px 12px; border-radius: 4px; font-weight: bold; }
+        .section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        h3 { color: #1e824c; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 15px; }
+        input[type="text"], select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; }
+        .btn-add { background: #28a745; color: white; border: none; padding: 10px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 14px; }
+        th { background-color: #1e824c; color: white; }
+        
+        .btn-edit { background: #ffc107; color: black; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-delete { background: #dc3545; color: white; text-decoration: none; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 13px; }
+        .btn-save { background: #28a745; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .view-mode { display: block; }
+        .edit-mode { display: none; }
+    </style>
+</head>
+<body>
+
+    <a href="/admin/dashboard" class="back-btn">← Back to Menu</a>
+
+    <div class="section">
+        <h3>📦 പുതിയ ഉൽപ്പന്നം ചേർക്കുക</h3>
+        <form action="/admin/add_product" method="POST">
+            <div class="form-grid">
+                <select name="brand_id" required>
+                    <option value="">-- Select Brand --</option>
+                    {% for brand in brands %}
+                        <option value="{{ brand.brand_id }}">{{ brand.brand_name }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" name="name" required placeholder="Product Name">
+                <input type="text" name="packing" required placeholder="Packing">
+                <input type="text" name="mrp" required placeholder="MRP">
+                <input type="text" name="img" placeholder="Image name (Optional)">
+                <button type="submit" class="btn-add">Save Product</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="section">
+        <h3>📋 നിലവിലുള്ള ഉൽപ്പന്നങ്ങൾ</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Brand</th>
+                    <th>Product Name</th>
+                    <th>Packing</th>
+                    <th>MRP (₹)</th>
+                    <th>Image</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in products %}
+                <tr id="row-{{ item.id }}">
+                    <form action="/admin/edit_product/{{ item.id }}" method="POST">
+                        <td>{{ item.brand_name }}</td>
+                        <td>
+                            <span class="view-mode">{{ item.name }}</span>
+                            <input type="text" name="name" class="edit-mode" value="{{ item.name }}" required>
+                        </td>
+                        <td>
+                            <span class="view-mode">{{ item.packing }}</span>
+                            <input type="text" name="packing" class="edit-mode" value="{{ item.packing }}" required>
+                        </td>
+                        <td>
+                            <span class="view-mode">{{ item.mrp }}</span>
+                            <input type="text" name="mrp" class="edit-mode" value="{{ item.mrp }}" required>
+                        </td>
+                        <td>
+                            <span class="view-mode">{{ item.img }}</span>
+                            <input type="text" name="img" class="edit-mode" value="{{ item.img }}">
+                        </td>
+                        <td>
+                            <button type="button" class="btn-edit view-mode" onclick="toggleEdit('{{ item.id }}')">Edit</button>
+                            <button type="submit" class="btn-save edit-mode">Save</button>
+                            <a href="/admin/delete_product/{{ item.id }}" class="btn-delete view-mode" onclick="return confirm('ഈ പ്രൊഡക്റ്റ് ഡിലീറ്റ് ചെയ്യണോ?')">Delete</a>
+                        </td>
+                    </form>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function toggleEdit(id) {
+            var row = document.getElementById('row-' + id);
+            var viewElements = row.getElementsByClassName('view-mode');
+            var editElements = row.getElementsByClassName('edit-mode');
+            
+            for (var i = 0; i < viewElements.length; i++) {
+                viewElements[i].style.display = 'none';
+            }
+            for (var i = 0; i < editElements.length; i++) {
+                editElements[i].style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
