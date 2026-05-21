@@ -13,15 +13,18 @@
         input[type="text"], select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; }
         .btn-add { background: #28a745; color: white; border: none; padding: 10px; border-radius: 4px; font-weight: bold; cursor: pointer; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; table-layout: fixed; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 14px; }
         th { background-color: #1e824c; color: white; }
         
-        .btn-edit { background: #ffc107; color: black; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .btn-delete { background: #dc3545; color: white; text-decoration: none; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 13px; }
-        .btn-save { background: #28a745; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .view-mode { display: block; }
-        .edit-mode { display: none; }
+        /* Buttons & Badges Styling */
+        .btn-edit { background: #ffc107; color: black; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-delete { background: #dc3545; color: white; text-decoration: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 13px; }
+        .btn-save { background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; display: none; }
+        .btn-status { display: inline-block; padding: 5px 10px; border-radius: 4px; color: white; text-decoration: none; font-weight: bold; font-size: 13px; }
+        .status-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; vertical-align: middle; margin-left: 5px; }
+        
+        .edit-mode { display: none; padding: 4px 6px; border: 1px solid #ccc; border-radius: 4px; width: 100%; font-size: 13px; box-sizing: border-box; }
     </style>
 </head>
 <body>
@@ -47,64 +50,124 @@
         </form>
     </div>
 
+    <div class="section" style="background: #eef7ee; border: 1px dashed #28a745; padding: 15px; margin-top: 15px;">
+        <h3>📊 Bulk Upload Products (CSV File)</h3>
+        <div style="margin-bottom: 10px;">
+            <a href="/admin/download_product_template" style="color: #1e824c; text-decoration: underline; font-weight: bold;">
+                📥 Download Sample Product Template CSV
+            </a>
+        </div>
+        <form action="/admin/upload_products" method="POST" enctype="multipart/form-data" style="display: flex; gap: 10px; align-items: center;">
+            <input type="file" name="file" accept=".csv" required style="padding: 5px; flex: 1;">
+            <button type="submit" class="btn-add" style="background: #1e824c; padding: 8px 20px;">Upload CSV</button>
+        </form>
+    </div>
+
     <div class="section">
         <h3>📋 നിലവിലുള്ള ഉൽപ്പന്നങ്ങൾ</h3>
         <table>
             <thead>
                 <tr>
-                    <th>Brand</th>
-                    <th>Product Name</th>
-                    <th>Packing</th>
-                    <th>MRP (₹)</th>
-                    <th>Image</th>
-                    <th>Actions</th>
+                    <th style="width: 15%;">Brand</th>
+                    <th style="width: 25%;">Product Name</th>
+                    <th style="width: 12%;">Packing</th>
+                    <th style="width: 10%;">MRP (₹)</th>
+                    <th style="width: 13%;">Image</th>
+                    <th style="width: 25%;">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for item in products %}
                 <tr id="row-{{ item.id }}">
-                    <form action="/admin/edit_product/{{ item.id }}" method="POST">
-                        <td>{{ item.brand_name }}</td>
-                        <td>
-                            <span class="view-mode">{{ item.name }}</span>
-                            <input type="text" name="name" class="edit-mode" value="{{ item.name }}" required>
-                        </td>
-                        <td>
-                            <span class="view-mode">{{ item.packing }}</span>
-                            <input type="text" name="packing" class="edit-mode" value="{{ item.packing }}" required>
-                        </td>
-                        <td>
-                            <span class="view-mode">{{ item.mrp }}</span>
-                            <input type="text" name="mrp" class="edit-mode" value="{{ item.mrp }}" required>
-                        </td>
-                        <td>
-                            <span class="view-mode">{{ item.img }}</span>
-                            <input type="text" name="img" class="edit-mode" value="{{ item.img }}">
-                        </td>
-                        <td>
-                            <button type="button" class="btn-edit view-mode" onclick="toggleEdit('{{ item.id }}')">Edit</button>
-                            <button type="submit" class="btn-save edit-mode">Save</button>
-                            <a href="/admin/delete_product/{{ item.id }}" class="btn-delete view-mode" onclick="return confirm('ഈ പ്രൊഡക്റ്റ് ഡിലീറ്റ് ചെയ്യണോ?')">Delete</a>
-                        </td>
-                    </form>
+                    <td colspan="6" style="padding: 0; border: none;">
+                        <form action="/admin/edit_product/{{ item.id }}" method="POST" style="margin: 0;">
+                            <table style="width: 100%; margin: 0; border-collapse: collapse; table-layout: fixed;">
+                                <tr>
+                                    <td style="width: 15%;">{{ item.brand_name }}</td>
+                                    <td style="width: 25%;">
+                                        <span class="view-mode-text-{{ item.id }}">{{ item.name }}</span>
+                                        {% if item.is_available == 1 %}
+                                            <span class="status-badge view-mode-text-{{ item.id }}" style="background-color: #d4edda; color: #155724;">Active</span>
+                                        {% else %}
+                                            <span class="status-badge view-mode-text-{{ item.id }}" style="background-color: #f8d7da; color: #721c24;">Hidden</span>
+                                        {% endif %}
+                                        <input type="text" name="name" class="edit-mode" value="{{ item.name }}" required>
+                                    </td>
+                                    <td style="width: 12%;">
+                                        <span class="view-mode-text-{{ item.id }}">{{ item.packing }}</span>
+                                        <input type="text" name="packing" class="edit-mode" value="{{ item.packing }}" required>
+                                    </td>
+                                    <td style="width: 10%;">
+                                        <span class="view-mode-text-{{ item.id }}">{{ item.mrp }}</span>
+                                        <input type="text" name="mrp" class="edit-mode" value="{{ item.mrp }}" required>
+                                    </td>
+                                    <td style="width: 13%;">
+                                        <span class="view-mode-text-{{ item.id }}">{{ item.img }}</span>
+                                        <input type="text" name="img" class="edit-mode" value="{{ item.img }}">
+                                    </td>
+                                    <td style="width: 25%; display: flex; gap: 6px; align-items: center; border: none; padding: 7px 10px;">
+                                        <button type="button" class="btn-edit" id="btn-edit-{{ item.id }}" onclick="toggleEdit('{{ item.id }}')">Edit</button>
+                                        <button type="submit" class="btn-save" id="btn-save-{{ item.id }}">Save</button>
+                                        
+                                        {% if item.is_available == 1 %}
+                                            <a href="{{ url_for('toggle_product', id=item.id) }}" class="btn-status" style="background-color: #dc3545;" onclick="return confirm('ഈ പ്രൊഡക്റ്റ് ആപ്പിൽ നിന്നും ഹൈഡ് ചെയ്യണോ?')">Hide</a>
+                                        {% else %}
+                                            <a href="{{ url_for('toggle_product', id=item.id) }}" class="btn-status" style="background-color: #28a745;">Show</a>
+                                        {% endif %}
+
+                                        <a href="/admin/delete_product/{{ item.id }}" class="btn-delete" onclick="return confirm('ഈ പ്രൊഡക്റ്റ് ഡിലീറ്റ് ചെയ്യണോ?')">Delete</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </form>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-    </div>
 
+        {% if total_pages > 1 %}
+        <div class="pagination" style="text-align: center; margin: 30px 0; display: flex; justify-content: center; gap: 10px; align-items: center;">
+            
+            {% if current_page > 1 %}
+                <a href="{{ url_for('admin_product_page', page=current_page-1) }}">◀ Previous</a>
+            {% else %}
+                <span class="disabled">◀ Previous</span>
+            {% endif %}
+
+            <span style="font-weight: bold; font-size: 15px;">
+                Page {{ current_page }} of {{ total_pages }}
+            </span>
+
+            {% if current_page < total_pages %}
+                <a href="{{ url_for('admin_product_page', page=current_page+1) }}">Next ▶</a>
+            {% else %}
+                <span class="disabled">Next ▶</span>
+            {% endif %}
+
+        </div>
+        {% endif %}
+    </div>
+    
     <script>
         function toggleEdit(id) {
             var row = document.getElementById('row-' + id);
-            var viewElements = row.getElementsByClassName('view-mode');
-            var editElements = row.getElementsByClassName('edit-mode');
             
-            for (var i = 0; i < viewElements.length; i++) {
-                viewElements[i].style.display = 'none';
+            // 1. ആ വരിയിലെ ടെക്സ്റ്റുകൾ ഹൈഡ് ചെയ്യുക
+            var viewTexts = row.getElementsByClassName('view-mode-text-' + id);
+            for (var i = 0; i < viewTexts.length; i++) {
+                viewTexts[i].style.display = 'none';
             }
-            for (var i = 0; i < editElements.length; i++) {
-                editElements[i].style.display = 'block';
+            
+            // 2. ഇൻപുട്ട് ബോക്സുകൾ കാണിക്കുക
+            var editInputs = row.getElementsByClassName('edit-mode');
+            for (var i = 0; i < editInputs.length; i++) {
+                editInputs[i].style.display = 'block';
             }
+            
+            // 3. എഡിറ്റ് ബട്ടൺ മാറ്റി സേവ് ബട്ടൺ ആക്കുക (മറ്റു ബട്ടണുകൾ മാറില്ല)
+            document.getElementById('btn-edit-' + id).style.display = 'none';
+            document.getElementById('btn-save-' + id).style.display = 'inline-block';
         }
     </script>
 </body>

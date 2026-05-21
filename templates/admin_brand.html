@@ -15,8 +15,12 @@
         table { width: 100%; border-collapse: collapse; background: white; }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
         th { background-color: #1e824c; color: white; }
+        
+        /* Buttons & Badges Styling */
         .btn-edit { background: #ffc107; color: black; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 5px;}
-        .btn-delete { background: #dc3545; color: white; text-decoration: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 13px; }
+        .btn-delete { background: #dc3545; color: white; text-decoration: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 13px; margin-left: 5px; }
+        .btn-status { display: inline-block; padding: 5px 10px; border-radius: 4px; color: white; text-decoration: none; font-weight: bold; font-size: 13px; }
+        .status-badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -32,6 +36,19 @@
         </form>
     </div>
 
+    <div class="section" style="background: #eef7ee; border: 1px dashed #28a745; padding: 15px; margin-top: 15px;">
+        <h3>📊 Bulk Upload Brands (CSV File)</h3>
+        <div style="margin-bottom: 10px;">
+            <a href="/admin/download_brand_template" style="color: #1e824c; text-decoration: underline; font-weight: bold;">
+                📥 Download Sample Brand Template CSV
+            </a>
+        </div>
+        <form action="/admin/upload_brands" method="POST" enctype="multipart/form-data" class="form-inline">
+            <input type="file" name="file" accept=".csv" required style="padding: 5px;">
+            <button type="submit" class="btn-add" style="background: #1e824c;">Upload CSV</button>
+        </form>
+    </div>
+
     <div class="section">
         <h3>📋 നിലവിലുള്ള ബ്രാൻഡുകൾ</h3>
         <table>
@@ -39,6 +56,7 @@
                 <tr>
                     <th>Brand ID</th>
                     <th>Brand Name</th>
+                    <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -48,10 +66,24 @@
                     <td>{{ brand.brand_id }}</td>
                     <td>{{ brand.brand_name }}</td>
                     <td>
+                        {% if brand.is_available == 1 %}
+                            <span class="status-badge" style="background-color: #d4edda; color: #155724;">Active</span>
+                        {% else %}
+                            <span class="status-badge" style="background-color: #f8d7da; color: #721c24;">Hidden</span>
+                        {% endif %}
+                    </td>
+                    <td>
                         <form id="edit-form-{{ brand.brand_id }}" action="/admin/edit_brand/{{ brand.brand_id }}" method="POST" style="display:inline;">
                             <input type="hidden" name="brand_name" id="input-{{ brand.brand_id }}">
                             <button type="button" class="btn-edit" onclick="updateBrand('{{ brand.brand_id }}', '{{ brand.brand_name }}')">Edit</button>
                         </form>
+
+                        {% if brand.is_available == 1 %}
+                            <a href="{{ url_for('toggle_brand', brand_id=brand.brand_id) }}" class="btn-status" style="background-color: #dc3545;" onclick="return confirm('ഈ ബ്രാൻഡും ഇതിലെ എല്ലാ പ്രൊഡക്റ്റുകളും ആപ്പിൽ നിന്നും ഹൈഡ് ചെയ്യണമെന്നുണ്ടോ?')">Hide</a>
+                        {% else %}
+                            <a href="{{ url_for('toggle_brand', brand_id=brand.brand_id) }}" class="btn-status" style="background-color: #28a745;">Show</a>
+                        {% endif %}
+
                         <a href="/admin/delete_brand/{{ brand.brand_id }}" class="btn-delete" onclick="return confirm('തീർച്ചയായും ഈ ബ്രാൻഡ് ഡിലീറ്റ് ചെയ്യണോ?')">Delete</a>
                     </td>
                 </tr>

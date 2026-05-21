@@ -29,20 +29,71 @@
         .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
         .product-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; padding: 20px; transition: transform 0.3s; }
         .product-card:hover { transform: translateY(-5px); }
-        .product-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; background: #eee; }
+        
+        /* --- ഇവിടെയാണ് മാറ്റം വരുത്തിയത് (FIXED) --- */
+        .product-card img { 
+            width: 100%; 
+            height: 160px; /* കാർഡിന് ചേരുന്ന പാകത്തിനുള്ള ഉയരം */
+            object-fit: contain; /* ഇമേജ് കട്ടാവാതെ ഫുൾ ആയി വരാൻ */
+            border-radius: 8px; 
+            background: #ffffff; /* ബാക്ക്ഗ്രൗണ്ട് വെള്ളയാക്കി */
+            border: 1px solid #eee; /* ഭംഗിയുള്ള ബോർഡർ */
+            padding: 10px; /* ഫോട്ടോ വശങ്ങളിൽ മുട്ടാതിരിക്കാൻ */
+        }
+        
         .product-card h3 { margin: 15px 0 10px; font-size: 20px; color: #222; }
         .product-card p { color: #777; font-size: 14px; margin-bottom: 15px; }
         
-        /* ബട്ടൺ ഒരു ലിങ്ക് ഡിസൈൻ ആക്കി മാറ്റി */
         .order-btn { display: block; background: #28a745; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; width: 100%; text-align: center; }
         .order-btn:hover { background: #218838; }
+
+        /* Image Modal (Popup) Styling */
+        .image-modal {
+            display: none; 
+            position: fixed;
+            z-index: 9999; 
+            padding-top: 50px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.9); 
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 80vh;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(255,255,255,0.2);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .close-modal:hover {
+            color: #bbb;
+        }
     </style>
 </head>
 <body>
 
     <header>
         <div class="logo-container">
-            <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Daliya Logo" onerror="this.src='https://via.placeholder.com/60'">
+            <img src="{{ url_for('static', filename='logo.jpg') }}" 
+                 alt="Daliya Logo" 
+                 style="cursor: pointer; width: 80px; height: 80px; object-fit: contain; background: #ffffff; border: 1px solid #eee;" 
+                 onclick="openFullImage(this.src)"
+                 onerror="this.onerror=null; this.src='https://via.placeholder.com/60';">
             <span class="brand-name">Daliya Marketing</span>
         </div>
         <nav>
@@ -61,23 +112,49 @@
         <h2 class="section-title">ഞങ്ങളുടെ പ്രമുഖ ബ്രാൻഡുകൾ</h2>
         
         <div class="product-grid">
-    
-    {% for brand in brands %}
-    <div class="product-card">
-        
-        <img src="{{ url_for('static', filename=brand['brand_id'] ~ '.png') }}" 
-             alt="{{ brand['brand_name'] }}" 
-             onerror="this.src='https://via.placeholder.com/280x200?text=' + encodeURIComponent('{{ brand.brand_name }}')">
-        
-        <h3>{{ brand['brand_name'] }}</h3>
-        <p>{{ brand['brand_name'] }} ഉൽപ്പന്നങ്ങളും വിതരണ വിവരങ്ങളും.</p>
-        
-        <a href="/brand/{{ brand['brand_id'] }}" class="order-btn">Details</a>
+            {% for brand in brands %}
+            <div class="product-card">
+                <img src="{{ url_for('static', filename=brand['brand_id'] ~ '.png') }}" 
+                     alt="{{ brand['brand_name'] }}" 
+                     style="cursor: pointer;"
+                     onclick="openFullImage(this.src)"
+                     onerror="this.onerror=null; this.src='https://via.placeholder.com/280x200?text=' + encodeURIComponent('{{ brand.brand_name }}');">
+                
+                <h3>{{ brand['brand_name'] }}</h3>
+                <p>{{ brand['brand_name'] }} ഉൽപ്പന്നങ്ങളും വിതരണ വിവരങ്ങളും.</p>
+                
+                <a href="/brand/{{ brand['brand_id'] }}" class="order-btn">Details</a>
+            </div>
+            {% endfor %}
+        </div>
     </div>
-    {% endfor %}
 
-</div>
-    </div>
+    <div id="myImageModal" class="image-modal">
+        <span class="close-modal" onclick="closeFullImage()">&times;</span>
+        <img class="modal-content" id="imgFullSize">
+    </div>  
+
+<script>
+    function openFullImage(imageSrc) {
+        var modal = document.getElementById("myImageModal");
+        var modalImg = document.getElementById("imgFullSize");
+        
+        modal.style.display = "block";
+        modalImg.src = imageSrc;
+    }
+
+    function closeFullImage() {
+        var modal = document.getElementById("myImageModal");
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        var modal = document.getElementById("myImageModal");
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>
 
 </body>
 </html>
