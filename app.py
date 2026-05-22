@@ -1,18 +1,34 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for, session, abort, Response
 import sqlite3
 import csv
 import math
+from dotenv import load_dotenv
 from io import TextIOWrapper
+from functools import wraps
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = 'daliya_marketing_secret_key'
+# പ്രൊഫഷണൽ ആപ്പുകളിൽ സെക്രെട്ട് കീ സുരക്ഷിതമായി സൂക്ഷിക്കുക
+app.secret_key = os.getenv('FLASK_SECRET_KEY')
+ADMIN_USERNAME = os.getenv('ADMIN_USER')
+ADMIN_PASSWORD = os.getenv('ADMIN_PASS')
 
 def get_db_connection():
     conn = sqlite3.connect('daliya.db')
     conn.row_factory = sqlite3.Row
     return conn
 
-# --- USER HOMEPAGE (WITH PAGINATION) ---
+# 🔐 അഡ്മിൻ സെക്യൂരിറ്റിക്ക് വേണ്ടിയുള്ള ഡെക്കറേറ്റർ (ക്ലീൻ കോഡ് ശൈലി)
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'logged_in' not in session:
+            return redirect(url_for('admin_login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+# --- USER HOMEPAGE ---
 @app.route('/')
 def home():
     page = request.args.get('page', 1, type=int)
@@ -20,8 +36,6 @@ def home():
     offset = (page - 1) * per_page
 
     conn = get_db_connection()
-    
-    # kevalam available aaya products mathram count cheyyunnu
     total_products = conn.execute('SELECT COUNT(*) FROM products WHERE is_available = 1').fetchone()[0]
     
     products = conn.execute('''
@@ -30,7 +44,6 @@ def home():
         LIMIT ? OFFSET ?
     ''', (per_page, offset)).fetchall()
     
-    # kevalam available aaya brands mathram home-il kaanikkunnu
     brands = conn.execute('SELECT * FROM brands WHERE is_available = 1').fetchall()
     conn.close()
 
@@ -42,7 +55,7 @@ def home():
                            current_page=page, 
                            total_pages=total_pages)
 
-# --- BRAND DETAILS PAGE (FIXED INTERNAL SERVER ERROR) ---
+# --- BRAND DETAILS PAGE ---
 @app.route('/brand/<brand_id>')
 def brand_details(brand_id):
     page = request.args.get('page', 1, type=int)
@@ -50,15 +63,12 @@ def brand_details(brand_id):
     offset = (page - 1) * per_page
 
     conn = get_db_connection()
-    
-    # Brand available aano ennu koodi check cheyyunnu
     brand = conn.execute('SELECT * FROM brands WHERE brand_id = ? AND is_available = 1', (brand_id,)).fetchone()
     
     if brand is None:
         conn.close()
         return "Brand not found or currently unavailable", 404
 
-    # ee brand-il available aaya products mathram count cheyyunnu
     total_products = conn.execute('SELECT COUNT(*) FROM products WHERE brand_id = ? AND is_available = 1', (brand_id,)).fetchone()[0]
     
     products = conn.execute('''
@@ -88,7 +98,7 @@ def admin_login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        if username == 'admin' and password == 'daliya123':
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
             session['logged_in'] = True
             return redirect(url_for('admin_dashboard'))
         else:
@@ -96,9 +106,8 @@ def admin_login():
     return render_template('admin_login.html', error=error)
 
 @app.route('/admin/dashboard')
+@admin_required
 def admin_dashboard():
-    if 'logged_in' not in session:
-        return redirect(url_for('admin_login'))
     return render_template('admin_dashboard.html')
 
 @app.route('/admin/logout')
@@ -109,30 +118,31 @@ def admin_logout():
 
 # --- 1. ADMIN BRAND MANAGEMENT ---
 @app.route('/admin/brand')
+@admin_required
 def admin_brand_page():
-    if 'logged_in' not in session: return redirect(url_for('admin_login'))
     conn = get_db_connection()
     brands = conn.execute('SELECT * FROM brands').fetchall()
     conn.close()
     return render_template('admin_brand.html', brands=brands)
 
 @app.route('/admin/add_brand', methods=['POST'])
+@admin_required
 def add_brand():
-    if 'logged_in' not in session: return redirect(url_for('admin_login'))
     brand_id = request.form['brand_id'].strip().lower()
     brand_name = request.form['brand_name'].strip()
     if brand_id and brand_name:
         conn = get_db_connection()
         try:
-            conn.execute('INSERT INTO brands (brand_id, brand_name) VALUES (?, ?)', (brand_id, brand_name))
+            conn.execute('INSERT INTO brands (brand_id, brand_name, is_available) VALUES (?, ?, 1)', (brand_id, brand_name))
             conn.commit()
-        except sqlite3.IntegrityError: pass
+        except sqlite3.IntegrityError: 
+            pass
         conn.close()
     return redirect(url_for('admin_brand_page'))
 
 @app.route('/admin/edit_brand/<brand_id>', methods=['POST'])
+@admin_required
 def edit_brand(brand_id):
-    if 'logged_in' not in session: return redirect(url_for('admin_login'))
     new_name = request.form['brand_name'].strip()
     if new_name:
         conn = get_db_connection()
@@ -142,8 +152,8 @@ def edit_brand(brand_id):
     return redirect(url_for('admin_brand_page'))
 
 @app.route('/admin/delete_brand/<brand_id>')
+@admin_required
 def delete_brand(brand_id):
-    if 'logged_in' not in session: return redirect(url_for('admin_login'))
     conn = get_db_connection()
     conn.execute('DELETE FROM products WHERE brand_id = ?', (brand_id,))
     conn.execute('DELETE FROM brands WHERE brand_id = ?', (brand_id,))
@@ -152,22 +162,18 @@ def delete_brand(brand_id):
     return redirect(url_for('admin_brand_page'))
 
 
-# --- 2. ADMIN PRODUCT MANAGEMENT (ADDED PAGINATION & FIXED REDIRECTS) ---
+# --- 2. ADMIN PRODUCT MANAGEMENT ---
 @app.route('/admin/product')
+@admin_required
 def admin_product_page():
-    if 'logged_in' not in session: return redirect(url_for('admin_login'))
-    
     page = request.args.get('page', 1, type=int)
     per_page = 50
     offset = (page - 1) * per_page
 
     conn = get_db_connection()
     brands = conn.execute('SELECT * FROM brands').fetchall()
-    
-    # ആകെ പ്രൊഡക്റ്റുകളുടെ എണ്ണം
     total_products = conn.execute('SELECT COUNT(*) FROM products').fetchone()[0]
     
-    # ആവശ്യമായ 50 പ്രൊഡക്റ്റുകൾ മാത്രം JOIN വഴി എടുക്കുന്നു
     products = conn.execute('''
         SELECT products.*, brands.brand_name 
         FROM products 
@@ -185,8 +191,8 @@ def admin_product_page():
                            total_pages=total_pages)
 
 @app.route('/admin/add_product', methods=['POST'])
+@admin_required
 def add_product():
-    if 'logged_in' not in session: return redirect(url_for('admin_login'))
     brand_id = request.form['brand_id']
     name = request.form['name'].strip()
     packing = request.form['packing'].strip()
@@ -195,15 +201,15 @@ def add_product():
     if brand_id and name and packing and mrp:
         if not img: img = 'product.png'
         conn = get_db_connection()
-        conn.execute('INSERT INTO products (brand_id, name, packing, mrp, img) VALUES (?, ?, ?, ?, ?)',
+        conn.execute('INSERT INTO products (brand_id, name, packing, mrp, img, is_available) VALUES (?, ?, ?, ?, ?, 1)',
                      (brand_id, name, packing, mrp, img))
         conn.commit()
         conn.close()
     return redirect(url_for('admin_product_page'))
 
 @app.route('/admin/edit_product/<int:id>', methods=['POST'])
+@admin_required
 def edit_product(id):
-    if 'logged_in' not in session: return redirect(url_for('admin_login'))
     name = request.form['name'].strip()
     packing = request.form['packing'].strip()
     mrp = request.form['mrp'].strip()
@@ -218,8 +224,8 @@ def edit_product(id):
     return redirect(url_for('admin_product_page'))
 
 @app.route('/admin/delete_product/<int:id>')
+@admin_required
 def delete_product(id):
-    if 'logged_in' not in session: return redirect(url_for('admin_login'))
     conn = get_db_connection()
     conn.execute('DELETE FROM products WHERE id = ?', (id,))
     conn.commit()
@@ -229,8 +235,8 @@ def delete_product(id):
 
 # --- CSV BULK UPLOAD FUNCTIONS ---
 @app.route('/admin/upload_brands', methods=['POST'])
+@admin_required
 def upload_brands():
-    if 'logged_in' not in session: return redirect(url_for('admin_login'))
     if 'file' not in request.files:
         return "No file part", 400
     file = request.files['file']
@@ -240,7 +246,7 @@ def upload_brands():
     if file and file.filename.endswith('.csv'):
         csv_file = TextIOWrapper(file.stream, encoding='utf-8')
         csv_reader = csv.reader(csv_file)
-        next(csv_reader)
+        next(csv_reader) # Header skip ചെയ്യാൻ
         
         conn = get_db_connection()
         for row in csv_reader:
@@ -248,7 +254,7 @@ def upload_brands():
                 brand_id = row[0].strip().lower()
                 brand_name = row[1].strip()
                 try:
-                    conn.execute('INSERT OR IGNORE INTO brands (brand_id, brand_name) VALUES (?, ?)', (brand_id, brand_name))
+                    conn.execute('INSERT OR IGNORE INTO brands (brand_id, brand_name, is_available) VALUES (?, ?, 1)', (brand_id, brand_name))
                 except Exception as e:
                     print(f"Error inserting brand: {e}")
         conn.commit()
@@ -258,8 +264,8 @@ def upload_brands():
     return "Invalid file format. Please upload a CSV file.", 400
 
 @app.route('/admin/upload_products', methods=['POST'])
+@admin_required
 def upload_products():
-    if 'logged_in' not in session: return redirect(url_for('admin_login'))
     if 'file' not in request.files:
         return "No file part", 400
     file = request.files['file']
@@ -278,12 +284,13 @@ def upload_products():
                 name = row[1].strip()
                 packing = row[2].strip()
                 mrp = row[3].strip()
-                img = row[4].strip() if len(row) > 4 else "product.png"
+                img = row[4].strip() if len(row) > 4 and row[4].strip() else "product.png"
                 
                 try:
+                    # ഇവിടെ is_available = 1 എന്ന് നേരിട്ട് ഉറപ്പുവരുത്തുന്നു
                     conn.execute('''
-                        INSERT INTO products (brand_id, name, packing, mrp, img) 
-                        VALUES (?, ?, ?, ?, ?)
+                        INSERT INTO products (brand_id, name, packing, mrp, img, is_available) 
+                        VALUES (?, ?, ?, ?, ?, 1)
                     ''', (brand_id, name, packing, mrp, img))
                 except Exception as e:
                     print(f"Error inserting product: {e}")
@@ -296,8 +303,8 @@ def upload_products():
 
 # --- CSV TEMPLATE DOWNLOADS ---
 @app.route('/admin/download_brand_template')
+@admin_required
 def download_brand_template():
-    if 'logged_in' not in session: return redirect(url_for('admin_login'))
     csv_data = "brand_id,brand_name\nnestle,Nestle\nmilma,Milma\n"
     return Response(
         csv_data,
@@ -306,8 +313,8 @@ def download_brand_template():
     )
 
 @app.route('/admin/download_product_template')
+@admin_required
 def download_product_template():
-    if 'logged_in' not in session: return redirect(url_for('admin_login'))
     csv_data = "brand_id,name,packing,mrp,img\nnestle,KitKat 45g,1 Pack,30,kitkat.png\nmilma,Milma Peda 250g,1 Box,150,milma_peda.png\n"
     return Response(
         csv_data,
@@ -317,16 +324,13 @@ def download_product_template():
 
 # --- BRAND TOGGLE STATUS (HIDE / SHOW) ---
 @app.route('/admin/toggle_brand/<brand_id>')
+@admin_required
 def toggle_brand(brand_id):
-    if 'logged_in' not in session: return redirect(url_for('admin_login'))
     conn = get_db_connection()
-    # Nilvile status nokkunnu
     current = conn.execute('SELECT is_available FROM brands WHERE brand_id = ?', (brand_id,)).fetchone()
     if current:
-        # 1 aayirunnengil 0 aakkunnu, 0 aayirunnengil 1 aakkunnu
         new_status = 0 if current['is_available'] == 1 else 1
         conn.execute('UPDATE brands SET is_available = ? WHERE brand_id = ?', (new_status, brand_id))
-        # Oru brand hide cheydhal athile ella products-um taniye hide aavan (Optional)
         conn.execute('UPDATE products SET is_available = ? WHERE brand_id = ?', (new_status, brand_id))
         conn.commit()
     conn.close()
@@ -335,8 +339,8 @@ def toggle_brand(brand_id):
 
 # --- PRODUCT TOGGLE STATUS (HIDE / SHOW) ---
 @app.route('/admin/toggle_product/<int:id>')
+@admin_required
 def toggle_product(id):
-    if 'logged_in' not in session: return redirect(url_for('admin_login'))
     conn = get_db_connection()
     current = conn.execute('SELECT is_available FROM products WHERE id = ?', (id,)).fetchone()
     if current:
@@ -348,7 +352,7 @@ def toggle_product(id):
 
 @app.route('/about')
 def about():
-    return render_template('about.html') # ഫയലിന്റെ പേര്
+    return render_template('about.html')
 
 @app.route('/services')
 def services():
