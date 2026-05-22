@@ -346,5 +346,13 @@ def toggle_product(id):
     conn.close()
     return redirect(url_for('admin_product_page'))
 
+@app.route('/about')
+def about():
+    return render_template('about.html') # ഫയലിന്റെ പേര്
+
+@app.route('/services')
+def services():
+    return render_template('services.html')
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

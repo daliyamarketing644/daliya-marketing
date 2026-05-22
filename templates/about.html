@@ -2,25 +2,247 @@
 <html lang="ml">
 <head>
     <meta charset="UTF-8">
-    <title>About Us</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Daliya Marketing</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 30px; max-width: 500px; margin: 50px auto; border-radius: 10px; box-shadow: 0px 0px 15px rgba(0,0,0,0.1); background: white; text-align: center; }
-        nav { margin-bottom: 30px; padding: 10px; background-color: #f4f7f6; border-radius: 5px; }
-        nav a { margin: 0 10px; text-decoration: none; color: #333; font-weight: bold; }
-        nav a.active { color: #28a745; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Arial', sans-serif; }
+        body { background-color: #f4f7f5; color: #333; line-height: 1.6; }
+        
+        /* Navigation Header */
+        header { 
+            background: #ffffff; 
+            padding: 15px 40px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06); 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            position: sticky; 
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .logo-container a { 
+            display: flex; 
+            align-items: center; 
+            text-decoration: none; 
+        }
+        
+        .logo-container img { 
+            width: 180px; 
+            height: auto; 
+            object-fit: contain; 
+        }
+
+        .logo-tagline {
+            font-size: 11px;
+            color: #080808;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+            text-transform: uppercase;
+        }
+        
+        nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        nav a { 
+            padding: 10px 20px; 
+            text-decoration: none; 
+            color: #555; 
+            font-weight: 600; 
+            font-size: 15px; 
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        
+        nav a:hover { 
+            color: #fd0404; 
+            background-color: #eef7ee; 
+        }
+        
+        nav a.active { 
+            color: #ffffff; 
+            background-color: #fd0303; 
+        }
+
+        /* Hero Banner */
+        .hero { 
+            text-align: center; 
+            padding: 50px 20px; 
+            background: linear-gradient(135deg, #f80202, #050505); 
+            color: white;
+        }
+        .hero h1 { 
+            font-size: 32px; 
+            font-weight: 700;
+            margin-bottom: 10px; 
+        }
+        .hero p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        /* Main Content Container */
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+        
+        .about-section {
+            background: white;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            margin-bottom: 30px;
+            border: 1px solid #eaeaea;
+        }
+
+        .about-section h2 {
+            color: #080808;
+            font-size: 24px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eef7ee;
+            padding-bottom: 8px;
+        }
+
+        /* Grid Layout for Mission & Vision */
+        .grid-two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .grid-card {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid #f30505;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .grid-card h3 {
+            color: #222;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        /* Features List Styling */
+        .features-list {
+            margin-top: 15px;
+            list-style: none;
+        }
+
+        .features-list li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .features-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #fa0303;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* Footer Section */
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #ffffff;
+            border-top: 1px solid #eaeaea;
+            color: #777;
+            font-size: 14px;
+            margin-top: 50px;
+        }
+
+        /* Mobile Optimization */
+        @media (max-width: 600px) {
+            header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+            .logo-container { align-items: center; }
+            .logo-container img { width: 150px; }
+            nav { width: 100%; justify-content: center; }
+            nav a { font-size: 14px; padding: 8px 14px; }
+            
+            .hero { padding: 35px 15px; }
+            .hero h1 { font-size: 24px; }
+            .hero p { font-size: 15px; }
+
+            .about-section { padding: 20px; }
+            .grid-two-col { grid-template-columns: 1fr; gap: 15px; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- ഈ കാണുന്നതാണ് മെനു ബാർ. ഇതിൽ Home ലിങ്ക് ഉണ്ട് -->
-    <nav>
-        <a href="/">Home</a> | 
-        <a href="/about" class="active">About Us</a> | 
-        <a href="/services">Services</a>
-    </nav>
+    <header>
+        <div class="logo-container">
+            <a href="/">
+                <img src="{{ url_for('static', filename='logo.jpg') }}" 
+                     alt="Daliya Logo" 
+                     onerror="this.onerror=null; this.src='https://via.placeholder.com/180x60?text=Daliya+Marketing';">
+            </a>
+            <span class="logo-tagline">Your Trusted Distribution Partner</span>
+        </div>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/about" class="active">About Us</a>
+            <a href="/services">Services</a>
+        </nav>
+    </header>
 
-    <h1>About Our Agency</h1>
-    <p>ഞങ്ങൾ നിങ്ങളുടെ ബിസിനസ്സ് ഡിജിറ്റലായി വളർത്താൻ സഹായിക്കുന്ന ഒരു ഏജൻസിയാണ്.</p>
+    <section class="hero">
+        <h1>About Daliya Marketing</h1>
+        <p>Connecting Quality Brands with Trusted Businesses Since 2026.</p>
+    </section>
+
+    <div class="container">
+        
+        <div class="about-section">
+            <h2>Who We Are (ഞങ്ങൾ ആരാണ്)</h2>
+            <p>പ്രമുഖ ബ്രാൻഡുകളുടെ ഗുണമേന്മയുള്ള ഉൽപ്പന്നങ്ങൾ കൃത്യസമയത്ത് വ്യാപാരികളിലേക്ക് എത്തിക്കുന്ന കേരളത്തിലെ പ്രമുഖ വിതരണ ശൃംഖലയാണ് (Distribution Network) ഡാലിയ മാർക്കറ്റിംഗ്. വിശ്വസ്തതയും സുതാര്യതയുമാണ് ഞങ്ങളുടെ ബിസിനസ്സിന്റെ അടിത്തറ. മികച്ച വിതരണ സേവനത്തിലൂടെ റീട്ടെയിൽ വ്യാപാരികളുടെയും പ്രമുഖ കമ്പനികളുടെയും വിശ്വസ്ത പങ്കാളിയാകാൻ ഞങ്ങൾക്ക് കഴിഞ്ഞിട്ടുണ്ട്.</p>
+        </div>
+
+        <div class="grid-two-col">
+            <div class="grid-card">
+                <h3>Our Mission (ലക്ഷ്യം)</h3>
+                <p>ഏറ്റവും മികച്ചതും വിശ്വസനീയവുമായ വിതരണ സേവനത്തിലൂടെ വ്യാപാരികൾക്ക് തടസ്സമില്ലാതെ ഉൽപ്പന്നങ്ങൾ ലഭ്യമാക്കുകയും, കസ്റ്റമേഴ്സിന് മികച്ച ബ്രാൻഡ് അനുഭവം ഉറപ്പാക്കുകയും ചെയ്യുക എന്നതാണ് ഞങ്ങളുടെ ലക്ഷ്യം.</p>
+            </div>
+            <div class="grid-card">
+                <h3>Our Vision (കാഴ്ചപ്പാട്)</h3>
+                <p>ആധുനിക സാങ്കേതികവിദ്യയും കൃത്യതയാർന്ന വിതരണ ശൈലിയും സമന്വയിപ്പിച്ചുകൊണ്ട്, കേരളത്തിലെ ഏറ്റവും വലിയതും വിശ്വസ്തവുമായ മാർക്കറ്റിംഗ് & ഡിസ്ട്രിബ്യൂഷൻ ശൃംഖലയായി വളരുക.</p>
+            </div>
+        </div>
+
+        <div class="about-section" style="margin-top: 30px;">
+            <h2>Why Choose Daliya Marketing? (എന്തുകൊണ്ട് ഞങ്ങൾ?)</h2>
+            <p>ഞങ്ങളുടെ കസ്റ്റമേഴ്സിനും ബിസിനസ്സ് പങ്കാളികൾക്കും ഞങ്ങൾ നൽകുന്ന പ്രത്യേകതകൾ താഴെ പറയുന്നവയാണ്:</p>
+            <ul class="features-list">
+                <li><strong>Top Brand Availability:</strong> വിപണിയിലെ മുൻനിര ബ്രാൻഡുകളുടെ ഉൽപ്പന്നങ്ങൾ ഒരൊറ്റ മേൽക്കൂരയിൽ ലഭ്യമാക്കുന്നു.</li>
+                <li><strong>On-Time Delivery:</strong> ഓർഡറുകൾ ഒട്ടും വൈകാതെ കൃത്യസമയത്ത് നിങ്ങളുടെ ബിസിനസ്സ് സ്ഥാപനങ്ങളിൽ എത്തിക്കുന്നു.</li>
+                <li><strong>Trusted Partnership:</strong> ബിസിനസ്സ് ഇടപാടുകളിൽ നൂറു ശതമാനം സുതാര്യതയും വിശ്വാസ്യതയും ഉറപ്പുനൽകുന്നു.</li>
+                <li><strong>Excellent Customer Support:</strong> നിങ്ങളുടെ സംശയങ്ങൾക്കും ഓർഡർ വിവരങ്ങൾക്കും എപ്പോഴും ലഭ്യമായ കസ്റ്റമർ സപ്പോർട്ട്.</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <footer>
+        &copy; 2026 Daliya Marketing. All Rights Reserved. | Your Trusted Distribution Partner
+    </footer>
 
 </body>
 </html>

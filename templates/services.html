@@ -2,71 +2,243 @@
 <html lang="ml">
 <head>
     <meta charset="UTF-8">
-    <title>Our Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Services - Daliya Marketing</title>
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            padding: 30px; 
-            max-width: 500px; 
-            margin: 50px auto; 
-            border-radius: 10px; 
-            box-shadow: 0px 0px 15px rgba(0,0,0,0.1); 
-            background: white; 
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Arial', sans-serif; }
+        body { background-color: #f4f7f5; color: #333; line-height: 1.6; }
+        
+        /* Navigation Header */
+        header { 
+            background: #ffffff; 
+            padding: 15px 40px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06); 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            position: sticky; 
+            top: 0;
+            z-index: 1000;
         }
-        nav { 
-            text-align: center; 
-            margin-bottom: 20px; 
-            padding: 10px; 
-            background-color: #f4f7f6; 
-            border-radius: 5px;
+        
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
         }
-        nav a { 
-            margin: 0 10px; 
+
+        .logo-container a { 
+            display: flex; 
+            align-items: center; 
             text-decoration: none; 
-            color: #333; 
-            font-weight: bold; 
         }
-        nav a.active {
-            color: #28a745;
+        
+        .logo-container img { 
+            width: 180px; 
+            height: auto; 
+            object-fit: contain; 
         }
-        h1 { color: #333; text-align: center; }
-        ul { list-style-type: none; padding: 0; }
-        li { 
-            background: #eee; 
-            margin: 10px 0; 
-            padding: 12px; 
-            border-left: 5px solid #28a745; 
-            border-radius: 3px;
+
+        .logo-tagline {
+            font-size: 11px;
+            color: #fd0202;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+            text-transform: uppercase;
+        }
+        
+        nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        nav a { 
+            padding: 10px 20px; 
+            text-decoration: none; 
+            color: #555; 
+            font-weight: 600; 
+            font-size: 15px; 
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        
+        nav a:hover { 
+            color: #fa0606; 
+            background-color: #eef7ee; 
+        }
+        
+        nav a.active { 
+            color: #ffffff; 
+            background-color: #fa0404; 
+        }
+
+        /* Hero Banner */
+        .hero { 
+            text-align: center; 
+            padding: 50px 20px; 
+            background: linear-gradient(135deg, #fd0303, #0a0a0a); 
+            color: white;
+        }
+        .hero h1 { 
+            font-size: 32px; 
+            font-weight: 700;
+            margin-bottom: 10px; 
+        }
+        .hero p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        /* Main Content Container */
+        .container { max-width: 1100px; margin: 50px auto; padding: 0 20px; }
+        
+        /* Services Grid */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 30px;
+        }
+
+        /* Service Card Styling */
+        .service-card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            border: 1px solid #eaeaea;
+            border-top: 5px solid #fa0505;
+            transition: all 0.3s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            border-color: #cbdccb;
+        }
+
+        /* Simple CSS Icon Circles */
+        .service-icon {
+            width: 50px;
+            height: 50px;
+            background: #eef7ee;
+            color: #1e824c;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .service-card h3 {
+            color: #222;
+            font-size: 22px;
+            margin-bottom: 12px;
             font-weight: bold;
         }
-        .back-link {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
+
+        .service-card p {
             color: #666;
-            text-decoration: none;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* Footer Section */
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #ffffff;
+            border-top: 1px solid #eaeaea;
+            color: #777;
             font-size: 14px;
+            margin-top: 60px;
+        }
+
+        /* Mobile Optimization */
+        @media (max-width: 600px) {
+            header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+            .logo-container { align-items: center; }
+            .logo-container img { width: 150px; }
+            nav { width: 100%; justify-content: center; }
+            nav a { font-size: 14px; padding: 8px 14px; }
+            
+            .hero { padding: 35px 15px; }
+            .hero h1 { font-size: 24px; }
+            .hero p { font-size: 15px; }
+
+            .container { margin: 30px auto; padding: 0 15px; }
+            /* മൊബൈലിൽ സർവീസുകൾ ഫുൾ വിഡ്ത്തിൽ വരാൻ */
+            .services-grid { grid-template-columns: 1fr; gap: 20px; }
+            .service-card { padding: 20px; }
+            .service-card h3 { font-size: 19px; }
+            .service-card p { font-size: 14px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- മുകളിലെ മെനു ബാർ -->
-    <nav>
-        <a href="/">Home</a> | 
-        <a href="/about">About Us</a> | 
-        <a href="/services" class="active">Services</a>
-    </nav>
+    <header>
+        <div class="logo-container">
+            <a href="/">
+                <img src="{{ url_for('static', filename='logo.jpg') }}" 
+                     alt="Daliya Logo" 
+                     onerror="this.onerror=null; this.src='https://via.placeholder.com/180x60?text=Daliya+Marketing';">
+            </a>
+            <span class="logo-tagline">Your Trusted Distribution Partner</span>
+        </div>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/about">About Us</a>
+            <a href="/services" class="active">Services</a>
+        </nav>
+    </header>
 
-    <h1>Our Services</h1>
-    
-    <ul>
-        <li>Social Media Marketing</li>
-        <li>Search Engine Optimization (SEO)</li>
-        <li>Web Development</li>
-    </ul>
+    <section class="hero">
+        <h1>Our Services</h1>
+        <p>Reliable Solutions to Scale Your Retail Business & Brand Reach.</p>
+    </section>
 
-    <a href="/" class="back-link">← തിരികെ മെയിൻ പേജിലേക്ക്</a>
+    <div class="container">
+        
+        <div class="services-grid">
+            
+            <div class="service-card">
+                <div class="service-icon">📦</div>
+                <h3>Product Distribution (ഉൽപ്പന്ന വിതരണം)</h3>
+                <p>മുൻനിര കമ്പനികളുടെ എഫ്.എം.സി.ജി (FMCG) ഉൽപ്പന്നങ്ങളും മറ്റ് കൺസ്യൂമർ ഗുഡ്സുകളും വിശ്വസ്തതയോടെ റീട്ടെയിൽ വ്യാപാരികളിലേക്ക് എത്തിക്കുന്നു. സുരക്ഷിതമായ സ്റ്റോറേജും വിട്ടുവീഴ്ചയില്ലാത്ത ഗുണമേന്മയും ഞങ്ങൾ ഉറപ്പുനൽകുന്നു.</p>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon">🚛</div>
+                <h3>Prompt Logistics & Supply (കൃത്യസമയത്തുള്ള സപ്ലൈ)</h3>
+                <p>വ്യാപാരികളുടെ ഓർഡറുകൾ ഒട്ടും വൈകാതെ തന്നെ ബിസിനസ്സ് സ്ഥാപനങ്ങളിൽ എത്തിക്കാൻ മികച്ചൊരു ലോജിസ്റ്റിക്സ് ശൃംഖല ഡാലിയ മാർക്കറ്റിംഗിനുണ്ട്. തടസ്സമില്ലാത്ത സ്റ്റോക്ക് ലഭ്യതയാണ് ഞങ്ങളുടെ പ്രത്യേകത.</p>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon">📱</div>
+                <h3>Smart Order Management (ഡിജിറ്റൽ ഓർഡറിംഗ്)</h3>
+                <p>ആധുനിക സാങ്കേതികവിദ്യയുടെ സഹായത്തോടെ വ്യാപാരികൾക്ക് വളരെ എളുപ്പത്തിൽ പ്രൊഡക്റ്റുകൾ ബ്രൗസ് ചെയ്യാനും, വിലവിവരങ്ങൾ മനസ്സിലാക്കാനും, ഓർഡറുകൾ പ്ലേസ് ചെയ്യാനുമുള്ള സുതാര്യമായ സിസ്റ്റം ഞങ്ങൾ ഒരുക്കുന്നു.</p>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon">📈</div>
+                <h3>Brand Marketing & Support (മാർക്കറ്റിംഗ് പങ്കാളിത്തം)</h3>
+                <p>പുതിയ ബ്രാൻഡുകളെ വിപണിയിൽ പരിചയപ്പെടുത്താനും അവയുടെ വിതരണം വ്യാപിപ്പിക്കാനും കമ്പനികൾക്ക് ആവശ്യമായ മാർക്കറ്റിംഗ് സപ്പോർട്ടും വിപുലമായ കസ്റ്റമർ നെറ്റ്‌വർക്കും ഞങ്ങൾ നൽകുന്നു.</p>
+            </div>
+
+        </div>
+
+    </div>
+
+    <footer>
+        &copy; 2026 Daliya Marketing. All Rights Reserved. | Your Trusted Distribution Partner
+    </footer>
 
 </body>
 </html>
